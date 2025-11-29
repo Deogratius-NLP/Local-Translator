@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Local Languages Translator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .language-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .language-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .language-option label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .language-option input[type="radio"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .language-option label:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .language-option input[type="radio"]:checked + label:hover {
+            background: #5a6fd8;
+        }
+
+        .translate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-header i {
+            font-size: 1.3em;
+            color: #667eea;
+        }
+
+        .result-header h3 {
+            color: #2c3e50;
+            font-size: 1.3em;
+        }
+
+        .result-text {
+            font-size: 1.4em;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-meta {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fee;
+            border-radius: 12px;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            display: none;
+        }
+
+        .error-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .copy-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #219a52;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-language"></i> Language Translator</h1>
+            <p>Translate English words to local languages</p>
+        </div>
+
+        <form id="translationForm">
+            <div class="form-group">
+                <label for="englishWord">
+                    <i class="fas fa-pencil-alt"></i> English Word
+                </label>
+                <div class="input-container">
+                    <i class="fas fa-font"></i>
+                    <input type="text" id="englishWord" name="englishWord" 
+                           placeholder="Enter an English word..." required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-globe"></i> Select Target Language
+                </label>
+                <div class="language-selector">
+                    <div class="language-option">
+                        <input type="radio" id="swahili" name="targetLanguage" value="swahili" checked>
+                        <label for="swahili">
+                            <i class="fas fa-flag"></i> Swahili
+                        </label>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" id="haya" name="targetLanguage" value="haya">
+                        <label for="haya">
+                            <i class="fas fa-mountain"></i> Haya
+                        </label>
+                    </div>
+                    <div class="language-option">
+                        <input type="radio" id="sukuma" name="targetLanguage" value="sukuma">
+                        <label for="sukuma">
+                            <i class="fas fa-tree"></i> Sukuma
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="translate-btn" id="translateBtn">
+                <i class="fas fa-exchange-alt"></i>
+                Translate
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Translating...</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <i class="fas fa-check-circle"></i>
+                <h3>Translation Result</h3>
+            </div>
+            <div class="result-text" id="resultText"></div>
+            <div class="result-meta">
+                <i class="fas fa-info-circle"></i>
+                <span id="resultMeta"></span>
+            </div>
+            <button class="copy-btn" id="copyBtn">
+                <i class="fas fa-copy"></i> Copy Translation
+            </button>
+        </div>
+
+        <div class="error-container" id="errorContainer">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Error:</strong>
+            </div>
+            <div id="errorText"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('translationForm');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorContainer = document.getElementById('errorContainer');
+        const resultText = document.getElementById('resultText');
+        const resultMeta = document.getElementById('resultMeta');
+        const copyBtn = document.getElementById('copyBtn');
+        const translateBtn = document.getElementById('translateBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const englishWord = document.getElementById('englishWord').value.trim();
+            const targetLanguage = document.querySelector('input[name="targetLanguage"]:checked').value;
+            
+            if (!englishWord) {
+                showError('Please enter an English word');
+                return;
+            }
+
+            // Show loading
+            loading.classList.add('show');
+            resultContainer.classList.remove('show');
+            errorContainer.classList.remove('show');
+            translateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        english_word: englishWord,
+                        target_language: targetLanguage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showResult(data);
+                } else {
+                    showError(data.error || data.detail || 'Translation failed');
+                }
+            } catch (error) {
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                loading.classList.remove('show');
+                translateBtn.disabled = false;
+            }
+        });
+
+        function showResult(data) {
+            resultText.textContent = data.translation;
+            
+            const methodText = getMethodText(data.method);
+            resultMeta.textContent = `${data.english} → ${data.target_language.charAt(0).toUpperCase() + data.target_language.slice(1)} (${methodText})`;
+            
+            resultContainer.classList.add('show');
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            errorContainer.classList.add('show');
+        }
+
+        function getMethodText(method) {
+            switch (method) {
+                case 'csv_lookup':
+                    return 'Found in dictionary';
+                case 'google_translate':
+                    return 'Google Translate';
+                case 'not_found':
+                    return 'Not found';
+                default:
+                    return 'Unknown method';
+            }
+        }
+
+        // Copy functionality
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(resultText.textContent);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                copyBtn.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '#27ae60';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        });
+
+        // Auto-focus on input when page loads
+        window.addEventListener('load', () => {
+            document.getElementById('englishWord').focus();
+        });
+
+        // Allow Enter key to submit form
+        document.getElementById('englishWord').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+         
+    <button type="button" id="recordBtn" class="translate-btn">
+          <i class="fas fa-microphone"></i>
+          <span id="recordStatus">Start Recording</span>
+    </button>
+
+    <script>
+        let mediaRecorder, audioChunks = [];
+        const recordBtn = document.getElementById('recordBtn');
+        const recordStatus = document.getElementById('recordStatus');
+
+        recordBtn.addEventListener('click', async () => {
+          if (mediaRecorder?.state === 'recording') {
+            mediaRecorder.stop();
+          } else {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = async () => {
+            recordStatus.textContent = 'Start Recording';
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const form = new FormData();
+            form.append('file', blob, 'speech.webm');
+
+            const resp = await fetch('/transcribe/', { method: 'POST', body: form });
+            const data = await resp.json();
+            if (resp.ok) {
+            document.getElementById('englishWord').value = data.text;
+            } else {
+            console.error(data.detail);
+            }
+            };
+
+            mediaRecorder.start();
+            recordStatus.textContent = 'Stop Recording';
+          }
+        });
+    </script>
+
+</body>
+</html>
